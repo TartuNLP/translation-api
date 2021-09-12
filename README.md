@@ -1,6 +1,6 @@
 # Machine Translation API
 
-A Flask API for using TartuNLP's public NMT engines. The API is designed to be used together with our 
+A Flask API for using TartuNLP's public NMT engines. The API is designed to be used together with our
 [translation workers](https://github.com/TartuNLP/translation-worker).
 
 The project is developed by the [NLP research group](https://tartunlp.ai) at the [Universty of Tartu](https://ut.ee).
@@ -49,47 +49,18 @@ custom models to apply custom preprocessing for requests from integrated CAT too
 [MemoQ](https://github.com/TartuNLP/MemoQ-Neurotolge-Plugin),
 [SDL](https://github.com/TartuNLP/SDL-Neurotolge-Plugin) or Memsource.
 
-To use older version of the API, use the following POST request format:
-
-POST `/translation/v1`
-
-Query parameters:
-```
-olang = est
-odomain = auto
-auth = public
-```
-
-BODY (JSON):
-
-```
-{
-    "text": "Tere.",
-}
-```
-
-Upon which the server returns the translation in a JSON:
-```
-{
-    "result": "Hi."
-}
-```
-
-The `olang` and `odomain` parameters are for the output language and output domain. The `auth` field is like the 
-`x-api-key` header in the newer version.
-
 ## Setup
 
-The API can be deployed using the docker image published alongside the repository. Each image version correlates to
-a specific release. The API is designed to work together with our
+The API can be deployed using the docker image published alongside the repository. Each image version correlates to a
+specific release. The API is designed to work together with our
 [translation worker](https://github.com/TartuNLP/translation-worker) worker containers and RabbitMQ.
 
 The service is available on port `5000`. Logs are stored in `/app/logs/`. Logging configuration is loaded from
 `/app/config/logging.ini` and service configuration from `/app/config/config.yaml` files.
 
-The container uses Gunicorn to run the API. Gunicorn parameters can be modified with environment variables where
-the variable name is capitalized and the prefix `GUNICORN_` is added. For example, the number of workers can be modified
-as follows:
+The container uses Gunicorn to run the API. Gunicorn parameters can be modified with environment variables where the
+variable name is capitalized and the prefix `GUNICORN_` is added. For example, the number of workers can be modified as
+follows:
 
 The RabbitMQ connection parameters are set with environment variables, exchange and queue names are dependent on the
 `service` value in `config.yaml` and the speaker name. The setup can be tested with the following sample
