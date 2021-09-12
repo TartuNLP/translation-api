@@ -5,15 +5,52 @@ from nauron import Response
 
 import settings
 
-QUERY = {
+V1_QUERY = {
     'auth': fields.Str(required=True),
     'olang': fields.Str(),
     'odomain': fields.Str()
 }
 
-BODY = {
+V1_BODY = {
     'text': fields.Raw(required=True, validate=(lambda obj: type(obj) in [str, list]))
 }
+
+V2_HEADERS = {
+    "x-api-key": fields.Str(missing="public"),
+    "application": fields.Str()
+}
+
+V2_BODY = {
+    'text': fields.Raw(required=True, validate=(lambda obj: type(obj) in [str, list])),
+    'src': fields.Str(),
+    'tgt': fields.Str(),
+    'domain': fields.Str(),
+    "application": fields.Str()
+}
+
+
+def config_converter(name: str, config: dict) -> dict:
+    """
+    Convert v2 config to v1 format
+    """
+    v1_config = {
+        'domain': name,
+        'options': []
+    }
+    for domain in config['domains']:
+        option = {
+            'odomain': domain['name'],
+            'name': domain['code'],
+            'lang': []
+        }
+        languages = []
+        for lang_pair in domain['languages']:
+            languages.append(lang_pair.split('-')[1])
+        option['languages'] = list(set(languages))
+        v1_config['options'].append(option)
+
+    return v1_config
+
 
 parser = FlaskParser()
 
