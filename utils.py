@@ -46,7 +46,7 @@ def config_converter(name: str, config: dict) -> dict:
         languages = []
         for lang_pair in domain['languages']:
             languages.append(lang_pair.split('-')[1])
-        option['languages'] = list(set(languages))
+        option['lang'] = list(set(languages))
         v1_config['options'].append(option)
 
     return v1_config
