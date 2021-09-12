@@ -16,7 +16,7 @@ nmt = app.add_service(name=settings.SERVICE_NAME, remote=True)
 
 @app.get('/translation/v1')
 @parser.use_args(QUERY, location="query")
-def translate_v1(query):
+def config_v1(query):
     workspace = resolve_workspace(query.pop("auth"))
     return workspace['info']
 
