@@ -1,0 +1,16 @@
+{
+  "domain": "Smugri",
+  "options": [
+    {
+      "odomain": "auto",
+      "name": "Auto",
+      "lang": [
+        "est",
+        "fin",
+        "sma",
+        "sme",
+        "vro"
+      ]
+    }
+  ]
+}
