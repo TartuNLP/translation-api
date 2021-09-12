@@ -22,7 +22,7 @@ for name, workspace in _config['workspaces'].items():
             info = json.load(file)
     else:
         info = {}
-    for key in workspace['api_key']:
+    for key in workspace['api_keys']:
         WORKSPACES[key] = {
             'name': name,
             'routing_pattern': workspace['routing_pattern'],

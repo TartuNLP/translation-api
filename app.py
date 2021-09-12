@@ -38,7 +38,7 @@ def translate_v1(query, body):
 
 @app.get('/translation/v1')
 @parser.use_args(V1_QUERY, location="query")
-def translate_v1(query):
+def config_v1(query):
     workspace = resolve_workspace(query.pop("auth"))
     return config_converter(workspace['name'], workspace['info'])
 
