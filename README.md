@@ -10,7 +10,7 @@ Neural machine translation can also be tested in our [web demo](https://translat
 
 The API can be used with the following request:
 
-POST `/translatio/v2`
+POST `/translation/v2`
 
 HEADERS (optional):
 
