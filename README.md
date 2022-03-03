@@ -49,7 +49,8 @@ specific release. The API is designed to work together with our
 
 The service is available on port `80`. By default, logging configuration is loaded from `config/logging.prod.ini` and
 service configuration from `config/config.yaml` files. A default version of the latter is included with comments that
-explain its format.
+explain its format. To modify any config files, they should be mounted at `/app/config` (the absolute path in the
+container).
 
 The following environment variables should be specified when running the container:
 
