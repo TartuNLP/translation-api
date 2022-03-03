@@ -1,4 +1,5 @@
 /.idea/
-*.pth
 __pycache__/
-config/.env
+*.iml
+*.env
+config/config.tartunlp.yaml

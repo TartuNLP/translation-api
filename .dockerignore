@@ -1,5 +1,6 @@
-config/*.env
 .idea/
 .git/
 .gitignore
 .github
+*.env
+config/config.tartunlp.yaml

@@ -1,6 +1,6 @@
 # Machine Translation API
 
-A Flask API for using TartuNLP's public NMT engines. The API is designed to be used together with our
+A Rest API based on FastAPI for using TartuNLP's public NMT engines. The API is designed to be used together with our
 [translation workers](https://github.com/TartuNLP/translation-worker).
 
 The project is developed by the [NLP research group](https://tartunlp.ai) at the [Universty of Tartu](https://ut.ee).
@@ -38,16 +38,8 @@ Response:
 }
 ```
 
-In case the text field contains a string, it is automatically split into sentences, which are translated and merged into
-a single string. In case it contains a list, the service assumes this list to be a list of sentences and will not do any
-further splitting.
-
-Some parameters, such as the source language and domain may be optional, depending on the exact engine. The optional
-`x-api-key` header is used to map requests to the models of a specific workspace and is mostly only necessary when using
-[custom models](https://translate.ut.ee/collaboration). The optional `application` parameter is only used by certain
-custom models to apply custom preprocessing for requests from integrated CAT tools, such as
-[MemoQ](https://github.com/TartuNLP/MemoQ-Neurotolge-Plugin),
-[SDL](https://github.com/TartuNLP/SDL-Neurotolge-Plugin) or Memsource.
+The full API documentation is available on the `/docs` endpoint path, for more info, check out the documentation
+our [public API instance](https://api.tartunlp.ai/translation/docs).
 
 ## Setup
 
@@ -55,22 +47,35 @@ The API can be deployed using the docker image published alongside the repositor
 specific release. The API is designed to work together with our
 [translation worker](https://github.com/TartuNLP/translation-worker) worker containers and RabbitMQ.
 
-The service is available on port `5000`. Logs are stored in `/app/logs/`. Logging configuration is loaded from
-`/app/config/logging.ini` and service configuration from `/app/config/config.yaml` files.
+The service is available on port `80`. By default, logging configuration is loaded from `config/logging.prod.ini` and
+service configuration from `config/config.yaml` files. A default version of the latter is included with comments that
+explain its format.
 
-The container uses Gunicorn to run the API. Gunicorn parameters can be modified with environment variables where the
-variable name is capitalized and the prefix `GUNICORN_` is added. For example, the number of workers can be modified as
-follows:
+The following environment variables should be specified when running the container:
 
-The RabbitMQ connection parameters are set with environment variables, exchange and queue names are dependent on the
-`service` value in `config.yaml` and the speaker name. The setup can be tested with the following sample
-`docker-compose.yml` configuration:
+- `MQ_USERNAME` - RabbitMQ username
+- `MQ_PASSWORD` - RabbitMQ user password
+- `MQ_HOST` - RabbitMQ host
+- `MQ_PORT` (optional) - RabbitMQ port (`5672` by default)
+- `MQ_TIMEOUT` (optional) - Message timeout in milliseconds (`300000` by default)
+- `MQ_EXCHANGE` (optional) - RabbitMQ exchange name (`translation` by default)
+- `API_MAX_INPUT_LENGTH` (optional) - maximum input text length in characters (`10000` by default)
+- `API_CONFIG_PATH` (optional) - path of the config file used (`config/config.yaml`)
+
+The entrypoint of the container is `["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers"]`.
+
+The default `CMD` is used to define logging configuration `["--log-config", "config/logging.prod.ini"]` which can be
+potentially overridden to define different [Uvicorn parameters](https://www.uvicorn.org/deployment/). For example,
+`["--log-config", "config/logging.debug.ini", "--root-path", "/translation"]` enables debug logging and allows the API
+to be mounted under to the non-root path `/translation` when using a proxy server such as Nginx.
+
+The setup can be tested with the following sample `docker-compose.yml` configuration:
 
 ```
 version: '3'
 services:
   rabbitmq:
-    image: 'rabbitmq:3.6-alpine'
+    image: 'rabbitmq'
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
@@ -81,31 +86,39 @@ services:
       - MQ_PORT=5672
       - MQ_USERNAME=${RABBITMQ_USER}
       - MQ_PASSWORD=${RABBITMQ_PASS}
-      - GUNICORN_WORKERS=8
     ports:
-      - '5000:5000'
+      - '80:80'
     depends_on:
       - rabbitmq
-  nmt_worker_septilang:
+  nmt_worker:
     image: ghcr.io/tartunlp/translation-worker:latest
-      - MODEL_NAME=septilang
       - MQ_HOST=rabbitmq
       - MQ_PORT=5672
       - MQ_USERNAME=${RABBITMQ_USER}
       - MQ_PASSWORD=${RABBITMQ_PASS}
+      - MKL_NUM_THREADS=8
     volumes:
       - ./models:/app/models
+    command: ["--model-name", "septilang"]
     depends_on:
       - rabbitmq
-  nmt_worker_smugri:
-    image: ghcr.io/tartunlp/translation-worker:latest
-      - MODEL_NAME=smugri
-      - MQ_HOST=rabbitmq
-      - MQ_PORT=5672
-      - MQ_USERNAME=${RABBITMQ_USER}
-      - MQ_PASSWORD=${RABBITMQ_PASS}
-    volumes:
-      - ./models:/app/models
-    depends_on:
-      - rabbitmq
+```
+
+### Development setup
+
+The API uses Python 3.10 by default, but is likely to be compatible with earlier versions. All required packages are
+described in `requirements.txt`, to install them, use:
+
+```
+pip install --no-cache-dir --upgrade --user -r requirements.txt
+```
+
+Environment variables described in the selection above can be defined in `config/.env`. The file is ignored by Git and
+Docker.
+
+To run the API, use the following command. This will start the service on `localhost` port `8000` and automatically
+restart the server in case of any code changes.
+
+```
+uvicorn app:app --reload
 ```

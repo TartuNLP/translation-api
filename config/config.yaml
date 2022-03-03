@@ -1,12 +1,21 @@
-service: translation
+api_keys:
+  null: public
+  public: public
 workspaces:
-  default:
-    api_keys: [ public ]
-    # Request parameters that form a routing key pattern.
-    # e.g. [ src, tgt ] to route requests to workers based on the language direction
-    routing_pattern: [ ]
-    info: config/septilang.json
-  smugri:
-    api_keys: [ smugri ]
-    routing_pattern: [ ]
-    info: config/smugri.json
+  public:
+    name: Public
+    domains:
+      - general
+domains:
+  general:
+    name: "General"
+    languages: [ "eng-eng", "est-eng", "ger-eng", "lit-eng", "lav-eng", "fin-eng", "rus-eng",
+                 "eng-est", "est-eng", "ger-est", "lit-est", "lav-est", "fin-est", "rus-est",
+                 "eng-ger", "est-ger", "ger-ger", "lit-ger", "lav-ger", "fin-ger", "rus-ger",
+                 "eng-lit", "est-lit", "ger-lit", "lit-lit", "lav-lit", "fin-lit", "rus-lit",
+                 "eng-lav", "est-lav", "ger-lav", "lit-lav", "lav-lav", "fin-lav", "rus-lav",
+                 "eng-rus", "est-rus", "ger-rus", "lit-rus", "lav-rus", "fin-fin", "fin-rus",
+                 "eng-fin", "est-fin", "ger-fin", "lit-fin", "lav-fin", "rus-fin", "rus-rus" ]
+language_codes:
+  { "et": "est", "est": "est", "en": "eng", "eng": "eng", "de": "ger", "deu": "ger", "ger": "ger", "lt": "lit",
+    "lit": "lit", "fi": "fin", "fin": "fin", "lv": "lav", "lav": "lav", "ru": "rus", "rus": "rus" }
