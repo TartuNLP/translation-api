@@ -6,6 +6,9 @@ A Rest API based on FastAPI for using TartuNLP's public NMT engines. The API is 
 The project is developed by the [NLP research group](https://tartunlp.ai) at the [Universty of Tartu](https://ut.ee).
 Neural machine translation can also be tested in our [web demo](https://translate.ut.ee/).
 
+The API is compatible with CAT tool plugins for [SDL Trados Studio](https://github.com/TartuNLP/SDL-Neurotolge-Plugin)
+and [MemoQ](https://github.com/TartuNLP/MemoQ-Neurotolge-Plugin).
+
 ## API usage
 
 The API can be used with the following request:
@@ -40,6 +43,19 @@ Response:
 
 The full API documentation is available on the `/docs` endpoint path, for more info, check out the documentation
 our [public API instance](https://api.tartunlp.ai/translation/docs).
+
+## RabbitMQ communication
+
+The API forwards requests to various NMT engines using the [RabbitMQ](https://rabbitmq.com) message broker. The
+communication uses a direct exchange named `translation` and a routing key of the request parameters using the format
+`translation.$src.$tgt.$domain`. To ensure compatibility with various CAT tools (and as many low-resource languages
+don't have 2-letter codes), 3-letter ISO language codes are used. Note that by default, `ger` is used for German instead
+on `deu`.
+
+[NMT workers](https://github.com/TartuNLP/translation-worker)
+estabilish queues within the exchange that are bound routing keys that illustrate which requests that the particular
+model can handle. Therefore, infinite options are available for combining different models to handle requests within the
+same API.
 
 ## Setup
 
