@@ -76,6 +76,7 @@ The following environment variables should be specified when running the contain
 - `MQ_PORT` (optional) - RabbitMQ port (`5672` by default)
 - `MQ_TIMEOUT` (optional) - Message timeout in milliseconds (`300000` by default)
 - `MQ_EXCHANGE` (optional) - RabbitMQ exchange name (`translation` by default)
+- `MQ_CONNECTION_NAME` (optional) - friendly connection name (`Translation API` by default)
 - `API_MAX_INPUT_LENGTH` (optional) - maximum input text length in characters (`10000` by default)
 - `API_CONFIG_PATH` (optional) - path of the config file used (`config/config.yaml`)
 

@@ -25,7 +25,10 @@ class MQConnector:
             host=mq_settings.host,
             port=mq_settings.port,
             login=mq_settings.username,
-            password=mq_settings.password
+            password=mq_settings.password,
+            client_properties={
+                'connection_name': mq_settings.connection_name
+            }
         )
         self.channel = await self.connection.channel()
         self.exchange = await self.channel.declare_exchange(mq_settings.exchange, ExchangeType.DIRECT)

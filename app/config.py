@@ -37,6 +37,7 @@ class MQSettings(BaseSettings):
     username: str = 'guest'
     password: str = 'guest'
     exchange: str = 'translation'
+    connection_name: str = 'Translation API'
     timeout: int = 30000
 
     class Config:
