@@ -38,6 +38,8 @@ async def get_config_v1(workspace: Workspace = Depends(check_v1_api_key)):
 @v1_router.post('/', include_in_schema=False)
 @v1_router.post('', response_model=ResponseV1, description="Submit a translation request.")
 async def translate(body: RequestV1,
+                    ilang: Optional[str] = Query(default=None,
+                                                 description="Source language ISO 2-letter or 3-letter code."),
                     olang: str = Query(default=None, description="Target language ISO 2-letter or 3-letter code."),
                     odomain: Optional[str] = Query(default="general", description="The domain (style) of the text"),
                     workspace: Workspace = Depends(check_v1_api_key)):
@@ -52,13 +54,23 @@ async def translate(body: RequestV1,
                             detail=f"Unsupported output language {olang}'.")
 
     src = False
-    for language_pair in api_config.domains[odomain].languages:
-        if language_pair.split('-')[1] == tgt:
-            src = language_pair.split('-')[0]
+    if ilang is None:
+        for language_pair in api_config.domains[odomain].languages:
+            if language_pair.split('-')[1] == tgt:
+                src = language_pair.split('-')[0]
+    else:
+        try:
+            src = api_config.language_codes[ilang]
+        except KeyError:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail=f"Unsupported input language {ilang}'.")
 
     if not src:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                             detail=f"Incorrect output language {olang} for domain '{odomain}'.")
+    elif f"{src}-{tgt}" not in api_config.domains[odomain].languages:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail=f"Incorrect language pair {src}-{tgt} for domain '{odomain}'.")
 
     correlation_id = str(uuid.uuid4())
     routing_key = f"{mq_settings.exchange}.{src}.{tgt}.{odomain}"
@@ -68,7 +80,7 @@ async def translate(body: RequestV1,
         src=src,
         tgt=tgt,
         domain=odomain,
-        application="memoq"  # TODO replace with a more general input type
+        application="memoq"  # input type with best support for all tag types
     )
 
     result = await mq_connector.publish_request(correlation_id, request, routing_key)

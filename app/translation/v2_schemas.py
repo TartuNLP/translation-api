@@ -10,11 +10,9 @@ class Request(BaseModel):
     text: Union[str, List[str]] = Field(...,
                                         description="Original text input. May contain multiple sentences.",
                                         example="Aitäh!")
-    src: str = Field("est",  # TODO language detection
+    src: str = Field(...,
                      example="est",
-                     description="Input language ISO 2-letter or 3-letter code. "
-                                 "Optional as for some models the input language is not required and in other cases "
-                                 "automatic input language detection may be used.")
+                     description="Input language ISO 2-letter or 3-letter code.")
     tgt: str = Field(...,
                      example="eng",
                      description="Target language ISO 2-letter or 3-letter code.")

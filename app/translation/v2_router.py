@@ -35,10 +35,7 @@ async def get_config(workspace_conf: tuple = Depends(check_api_key),):
 async def translate(body: Request,
                     workspace_conf: tuple = Depends(check_api_key),
                     application: Optional[str] = Header(None, convert_underscores=True, deprecated=True)):
-    # TODO: temporary workaround to skip input language detection in smugri neurotõlge, remove later
     workspace, api_key = workspace_conf
-    if api_key is not None and api_key == "smugri":
-        body.src = "vro"
 
     if body.domain not in workspace.domains:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
