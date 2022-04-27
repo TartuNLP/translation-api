@@ -110,6 +110,7 @@ services:
       - rabbitmq
   nmt_worker:
     image: ghcr.io/tartunlp/translation-worker:latest
+    environment:
       - MQ_HOST=rabbitmq
       - MQ_PORT=5672
       - MQ_USERNAME=${RABBITMQ_USER}
