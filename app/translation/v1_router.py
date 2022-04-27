@@ -1,7 +1,7 @@
 from typing import Optional
 import uuid
 
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Query
 
 from app import mq_connector, mq_settings, api_config, Workspace
 from . import ConfigV1, RequestV1, ResponseV1, DomainV1, Response, Request
@@ -9,7 +9,11 @@ from . import ConfigV1, RequestV1, ResponseV1, DomainV1, Response, Request
 v1_router = APIRouter(tags=["v1"])
 
 
-def check_v1_api_key(auth: Optional[str] = None) -> Workspace:
+def check_v1_api_key(
+        auth: Optional[str] = Query(
+            None,
+            description="An optional API key parameter that determines which domains and langauge pairs are available"
+        )) -> Workspace:
     try:
         workspace_name = api_config.api_keys[auth]
         return api_config.workspaces[workspace_name]
@@ -34,8 +38,8 @@ async def get_config_v1(workspace: Workspace = Depends(check_v1_api_key)):
 @v1_router.post('/', include_in_schema=False)
 @v1_router.post('', response_model=ResponseV1, description="Submit a translation request.")
 async def translate(body: RequestV1,
-                    olang: str,
-                    odomain: str,
+                    olang: str = Query(default=None, description="Target language ISO 2-letter or 3-letter code."),
+                    odomain: Optional[str] = Query(default="general", description="The domain (style) of the text"),
                     workspace: Workspace = Depends(check_v1_api_key)):
     if odomain not in workspace.domains:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,

@@ -14,7 +14,7 @@ class Request(BaseModel):
                      example="est",
                      description="Input language ISO 2-letter or 3-letter code. "
                                  "Optional as for some models the input language is not required and in other cases "
-                                 "automatic input language detection will be used.")
+                                 "automatic input language detection may be used.")
     tgt: str = Field(...,
                      example="eng",
                      description="Target language ISO 2-letter or 3-letter code.")
@@ -22,7 +22,7 @@ class Request(BaseModel):
                         example="general",
                         description="The domain (style) of the text. This is mostly relevant for custom-made engines.")
     application: Optional[str] = Field(None,
-                                       example="Swagger UI",
+                                       example="Documentation UI",
                                        description="Name of the application making the request. Certain application "
                                                    "names may activate specific pre- and postprocessing pipelines. "
                                                    "Otherwise used for usage statistics. If you integrate our API into "

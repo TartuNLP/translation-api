@@ -9,17 +9,18 @@ from . import Config, Request, Response, Domain
 v2_router = APIRouter(tags=["v2"])
 
 
-def check_api_key(x_api_key: Optional[str] = Header(None, convert_underscores=True)) -> Workspace:
+def check_api_key(x_api_key: Optional[str] = Header(None, convert_underscores=True)) -> (Workspace, Optional[str]):
     try:
         workspace_name = api_config.api_keys[x_api_key]
-        return api_config.workspaces[workspace_name]
+        return api_config.workspaces[workspace_name], x_api_key
     except KeyError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect API key.")
 
 
 @v2_router.get('/', include_in_schema=False)
 @v2_router.get('', response_model=Config, description="Get the configuration of available NMT models.")
-async def get_config(workspace: Workspace = Depends(check_api_key)):
+async def get_config(workspace_conf: tuple = Depends(check_api_key),):
+    workspace, _ = workspace_conf
     return Config(
         domains=[Domain(
             name=api_config.domains[domain].name,
@@ -32,8 +33,13 @@ async def get_config(workspace: Workspace = Depends(check_api_key)):
 @v2_router.post('/', include_in_schema=False)
 @v2_router.post('', response_model=Response, description="Submit a translation request.")
 async def translate(body: Request,
-                    workspace: Workspace = Depends(check_api_key),
+                    workspace_conf: tuple = Depends(check_api_key),
                     application: Optional[str] = Header(None, convert_underscores=True, deprecated=True)):
+    # TODO: temporary workaround to skip input language detection in smugri neurotõlge, remove later
+    workspace, api_key = workspace_conf
+    if api_key is not None and api_key == "smugri":
+        body.src = "vro"
+
     if body.domain not in workspace.domains:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail=f"Incorrect API key for domain '{body.domain}'.")
