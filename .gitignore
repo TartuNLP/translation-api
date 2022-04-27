@@ -2,4 +2,4 @@
 __pycache__/
 *.iml
 *.env
-config/config.tartunlp.yaml
+config/config.*.yaml
