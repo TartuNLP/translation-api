@@ -1,6 +1,6 @@
 # Machine Translation API
 
-A Rest API based on FastAPI for using TartuNLP's public NMT engines. The API is designed to be used together with our
+An API based on FastAPI for using TartuNLP's public NMT engines. The API is designed to be used together with our
 [translation workers](https://github.com/TartuNLP/translation-worker).
 
 The project is developed by the [NLP research group](https://tartunlp.ai) at the [Universty of Tartu](https://ut.ee).
@@ -23,7 +23,7 @@ x-api-key = public
 
 BODY (json):
 
-```
+``` json
 {
      "text": "Tere",
      "src": "et",
@@ -35,7 +35,7 @@ BODY (json):
 
 Response:
 
-```
+``` json
 {
     "result": "Hi."
 }
@@ -89,7 +89,7 @@ to be mounted under to the non-root path `/translation` when using a proxy serve
 
 The setup can be tested with the following sample `docker-compose.yml` configuration:
 
-```
+``` yaml
 version: '3'
 services:
   rabbitmq:
@@ -127,7 +127,7 @@ services:
 The API uses Python 3.10 by default, but is likely to be compatible with earlier versions. All required packages are
 described in `requirements.txt`, to install them, use:
 
-```
+``` bash
 pip install --no-cache-dir --upgrade --user -r requirements.txt
 ```
 
@@ -137,6 +137,6 @@ Docker.
 To run the API, use the following command. This will start the service on `localhost` port `8000` and automatically
 restart the server in case of any code changes.
 
-```
+``` bash
 uvicorn app:app --reload
 ```
