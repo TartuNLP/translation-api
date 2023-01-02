@@ -1,6 +1,6 @@
 from typing import List, Union, Optional, Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from fastapi import HTTPException, status
 
 from app import api_settings, api_config
@@ -28,31 +28,28 @@ class Request(BaseModel):
                                                    "us know.")
 
     def __init__(self, **data: Any):
-        super(Request, self).__init__(**data)
+        super().__init__(**data)
 
-    @validator('text')
-    def check_input_length(cls, v):
-        length = len(v) if type(v) == str else sum([len(sent) for sent in v])
+        length = len(self.text) if type(self.text) == str else sum([len(sent) for sent in self.text])
         if length > api_settings.max_input_length:
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                 detail=f"Field 'text' must not contain more than {api_settings.max_input_length} characters.")
-        return v
 
-    @validator('src', 'tgt')
-    def check_languages(cls, v):
-        if v not in api_config.language_codes.keys():
-            raise ValueError(f"Unknown language '{v}'.")
-        return api_config.language_codes[v]
+        try:
+            self.src = api_config.language_codes[self.src]
+            self.tgt = api_config.language_codes[self.tgt]
+        except KeyError as e:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail=f"Unknown language {e}.")
 
-    @validator('domain')
-    def check_domain(cls, v, values):
-        if v not in api_config.domains.keys():
-            raise ValueError(f"Domain '{v}' not available.")
-        language_pair = f"{values['src']}-{values['tgt']}"
-        if language_pair not in api_config.domains[v].languages:
-            raise ValueError(f"Language pair '{language_pair}' not available for domain '{v}'.")
-        return v
+        if self.domain not in api_config.domains.keys():
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail=f"Domain '{self.domain}' not available.")
+        language_pair = f"{self.src}-{self.tgt}"
+        if language_pair not in api_config.domains[self.domain].languages:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail=f"Language pair '{language_pair}' not available for domain '{self.domain}'.")
 
 
 class Response(BaseModel):

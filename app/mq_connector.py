@@ -2,6 +2,7 @@ import logging
 import asyncio
 import json
 
+from fastapi import HTTPException, status
 from pydantic import BaseModel
 from aio_pika import ExchangeType, Message, IncomingMessage, connect_robust
 
@@ -74,7 +75,15 @@ class MQConnector:
 
         LOGGER.info(f"Sent request: {{id: {correlation_id}, routing_key: {routing_key}}}")
         LOGGER.debug(f"Request {correlation_id} content: {{id: {correlation_id}}}")
-        response = await future  # TODO handle timeouts
+
+        try:
+            response = await asyncio.wait_for(future, timeout=mq_settings.timeout)
+        except asyncio.TimeoutError:
+            LOGGER.info(f"Request timed out: {{id: {message.correlation_id}}}")
+            future = self.futures.pop(message.correlation_id)
+            future.cancel()
+
+            raise HTTPException(status.HTTP_408_REQUEST_TIMEOUT)
 
         return response
 

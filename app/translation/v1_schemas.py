@@ -1,6 +1,6 @@
-from typing import List, Union
+from typing import List, Union, Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from fastapi import HTTPException, status
 
 from app import api_settings
@@ -11,14 +11,14 @@ class RequestV1(BaseModel):
                                         description="Original text input. May contain multiple sentences.",
                                         example="Aitäh!")
 
-    @validator('text')
-    def check_input_length(cls, v):
-        length = len(v) if type(v) == str else sum([len(sent) for sent in v])
+    def __init__(self, **data: Any):
+        super().__init__(**data)
+
+        length = len(self.text) if type(self.text) == str else sum([len(sent) for sent in self.text])
         if length > api_settings.max_input_length:
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                 detail=f"Field 'text' must not contain more than {api_settings.max_input_length} characters.")
-        return v
 
 
 class ResponseV1(BaseModel):

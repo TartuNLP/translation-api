@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir --upgrade --user -r requirements.txt && \
 
 COPY --chown=app:app . .
 
-EXPOSE 80
+EXPOSE 8000
 
-ENTRYPOINT ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers"]
-CMD ["--log-config", "config/logging.prod.ini"]
+ENTRYPOINT ["uvicorn", "app:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000",  "--log-config", "config/logging.prod.ini"]
+

@@ -3,7 +3,7 @@
 An API based on FastAPI for using TartuNLP's public NMT engines. The API is designed to be used together with our
 [translation workers](https://github.com/TartuNLP/translation-worker).
 
-The project is developed by the [NLP research group](https://tartunlp.ai) at the [Universty of Tartu](https://ut.ee).
+The project is developed by the [NLP research group](https://tartunlp.ai) at the [University of Tartu](https://ut.ee).
 Neural machine translation can also be tested in our [web demo](https://translate.ut.ee/).
 
 The API is compatible with CAT tool plugins for [SDL Trados Studio](https://github.com/TartuNLP/SDL-Neurotolge-Plugin)
@@ -53,7 +53,7 @@ don't have 2-letter codes), 3-letter ISO language codes are used. Note that by d
 on `deu`.
 
 [NMT workers](https://github.com/TartuNLP/translation-worker)
-estabilish queues within the exchange that are bound routing keys that illustrate which requests that the particular
+establish queues within the exchange that are bound routing keys that illustrate which requests that the particular
 model can handle. Therefore, infinite options are available for combining different models to handle requests within the
 same API.
 
@@ -61,9 +61,9 @@ same API.
 
 The API can be deployed using the docker image published alongside the repository. Each image version correlates to a
 specific release. The API is designed to work together with our
-[translation worker](https://github.com/TartuNLP/translation-worker) worker containers and RabbitMQ.
+[translation worker](https://github.com/TartuNLP/translation-worker) containers and RabbitMQ.
 
-The service is available on port `80`. By default, logging configuration is loaded from `config/logging.prod.ini` and
+The service is available on port `8000`. By default, logging configuration is loaded from `config/logging.prod.ini` and
 service configuration from `config/config.yaml` files. A default version of the latter is included with comments that
 explain its format. To modify any config files, they should be mounted at `/app/config` (the absolute path in the
 container).
@@ -74,7 +74,7 @@ The following environment variables should be specified when running the contain
 - `MQ_PASSWORD` - RabbitMQ user password
 - `MQ_HOST` - RabbitMQ host
 - `MQ_PORT` (optional) - RabbitMQ port (`5672` by default)
-- `MQ_TIMEOUT` (optional) - Message timeout in milliseconds (`300000` by default)
+- `MQ_TIMEOUT` (optional) - Message timeout in seconds (`30` by default)
 - `MQ_EXCHANGE` (optional) - RabbitMQ exchange name (`translation` by default)
 - `MQ_CONNECTION_NAME` (optional) - friendly connection name (`Translation API` by default)
 - `API_MAX_INPUT_LENGTH` (optional) - maximum input text length in characters (`10000` by default)
@@ -105,7 +105,7 @@ services:
       - MQ_USERNAME=${RABBITMQ_USER}
       - MQ_PASSWORD=${RABBITMQ_PASS}
     ports:
-      - '80:80'
+      - '80:8000'
     depends_on:
       - rabbitmq
   nmt_worker:

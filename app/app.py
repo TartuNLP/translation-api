@@ -1,17 +1,15 @@
 import logging
 
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.exceptions import RequestValidationError
 
-from app import mq_connector
+from app import api_settings, mq_connector
 from app.translation import v1_router, v2_router
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Translation API",
-              version="2.1.0",
+              version=api_settings.version if api_settings.version else "dev",
               description="An API that provides translations using neural machine translation models. "
                           "Developed by TartuNLP - the NLP research group of the University of Tartu.",
               terms_of_service="https://www.tartunlp.ai/andmekaitsetingimused",
@@ -31,16 +29,6 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"]
 )
-
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
-    logger.debug(f"{request}: {exc_str}")
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"message": exc_str}
-    )
 
 
 @app.on_event("startup")
