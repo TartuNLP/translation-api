@@ -41,11 +41,11 @@ class MQConnector:
         await self.callback_queue.delete()
         await self.connection.close()
 
-    def on_response(self, message: IncomingMessage):
+    async def on_response(self, message: IncomingMessage):
         LOGGER.info(f"Received response for request: {{id: {message.correlation_id}}}")
 
         future = self.futures.pop(message.correlation_id)
-        message.ack()
+        await message.ack()
         future.set_result(json.loads(message.body))
         LOGGER.debug(f"Response for {message.correlation_id}: {json.loads(message.body)}")
 
