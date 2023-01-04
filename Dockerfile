@@ -23,6 +23,9 @@ RUN pip install --no-cache-dir --upgrade --user -r requirements.txt && \
 
 COPY --chown=app:app . .
 
+ARG API_VERSION
+ENV API_VERSION=$API_VERSION
+
 EXPOSE 8000
 
 ENTRYPOINT ["uvicorn", "app:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000",  "--log-config", "config/logging.prod.ini"]
