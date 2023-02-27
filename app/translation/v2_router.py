@@ -57,7 +57,7 @@ async def correction(body: Correction, application: Optional[str] = Header(None,
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     filename = 'app/storage/corrections.txt'
-    output = f"---\ndate: {dt_string}\n\nrequest: {body.request}\n\noriginalTranslation: {body.response}\n\ncorrectedTranslation: {body.correction}\n---\n\n"
+    output = f"date: {dt_string}\n\nrequest: {body.request}\n\noriginalTranslation: {body.response}\n\ncorrectedTranslation: {body.correction}\n---\n\n"
     while True:
         try:
             with open(filename, 'a') as f:
@@ -67,3 +67,4 @@ async def correction(body: Correction, application: Optional[str] = Header(None,
         except IOError:
             # Failed to acquire lock, wait and try again
             time.sleep(.1)
+    return {"message": "success"}
