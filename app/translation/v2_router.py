@@ -56,15 +56,20 @@ async def translate(body: Request,
 async def correction(body: Correction, application: Optional[str] = Header(None, convert_underscores=True, deprecated=True)):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    filename = 'app/storage/corrections.txt'
     output = f"date: {dt_string}\n\nrequest: {body.request}\n\noriginalTranslation: {body.response}\n\ncorrectedTranslation: {body.correction}\n---\n\n"
-    while True:
+
+    filePath= api_config.corrections_data_storage_path
+
+    maxAttempts = 50
+    attempt = 0
+    while attempt < maxAttempts:
         try:
-            with open(filename, 'a') as f:
+            with open(filePath, 'a') as f:
                 fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 f.write(output)
-                break
+                return {"message": "Correction saved."}
         except IOError:
+            attempt += 1
             # Failed to acquire lock, wait and try again
             time.sleep(.1)
-    return {"message": "success"}
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to save data on a server.")
