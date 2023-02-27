@@ -23,3 +23,4 @@ domains:  # Domains of translation engines
 language_codes:  # A mapping of all language code formats to the default 3-letter format
     { "et": "est", "est": "est", "en": "eng", "eng": "eng", "de": "ger", "deu": "ger", "ger": "ger", "lt": "lit",
       "lit": "lit", "fi": "fin", "fin": "fin", "lv": "lav", "lav": "lav", "ru": "rus", "rus": "rus" }
+corrections_data_storage_path: "storage/corrections.txt" # A path to the file with user-corrected translations data

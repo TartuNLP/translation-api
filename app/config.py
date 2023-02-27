@@ -20,7 +20,7 @@ class APIConfig(BaseModel):
     workspaces: Dict[str, Workspace]
     domains: Dict[str, Domain]
     language_codes: Dict[str, str]
-    corrections_data_storage_path: str = "storage/corrections.txt"
+    corrections_data_storage_path: str
 
 
 class APISettings(BaseSettings):
