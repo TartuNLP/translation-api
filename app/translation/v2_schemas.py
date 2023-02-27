@@ -77,3 +77,15 @@ class Config(BaseModel):
                               description="[Deprecated] A boolean value whether using XML tags in text is supported.")
     domains: List[Domain] = Field(...,
                                   description="A list of supported domains and their configurations.")
+
+
+class Correction(BaseModel):
+    request: Union[str, List[str]] = Field(...,
+                                        description="An original translation request.",
+                                        example='{"text":"Aitäh!","tgt":"eng","src":"est"}')
+    response: Union[str, List[str]] = Field(...,
+                                        description="An original translation.",
+                                        example="Thank you!")
+    correction: Union[str, List[str]] = Field(...,
+                                        description="A user-corrected text.",
+                                        example="Thanks!")

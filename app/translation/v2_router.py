@@ -1,10 +1,12 @@
 from typing import Optional
-import uuid
+import uuid, fcntl, time
 
 from fastapi import APIRouter, Header, HTTPException, status, Depends
 
 from app import mq_connector, mq_settings, api_config, Workspace
-from . import Config, Request, Response, Domain
+from . import Config, Request, Response, Domain, Correction
+
+from datetime import datetime
 
 v2_router = APIRouter(tags=["v2"])
 
@@ -49,3 +51,19 @@ async def translate(body: Request,
 
     result = await mq_connector.publish_request(correlation_id, body, routing_key)
     return result
+
+@v2_router.post("/correction", description="Submit a translation correction request.")
+async def correction(body: Correction, application: Optional[str] = Header(None, convert_underscores=True, deprecated=True)):
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    filename = 'app/storage/corrections.txt'
+    output = f"---\ndate: {dt_string}\n\nrequest: {body.request}\n\noriginalTranslation: {body.response}\n\ncorrectedTranslation: {body.correction}\n---\n\n"
+    while True:
+        try:
+            with open(filename, 'a') as f:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                f.write(output)
+                break
+        except IOError:
+            # Failed to acquire lock, wait and try again
+            time.sleep(.1)

@@ -3,3 +3,4 @@ __pycache__/
 *.iml
 *.env
 config/config.*.yaml
+app/storage/*
