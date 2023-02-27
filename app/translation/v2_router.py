@@ -1,10 +1,12 @@
 from typing import Optional
-import uuid
+import uuid, fcntl, time
 
 from fastapi import APIRouter, Header, HTTPException, status, Depends
 
 from app import mq_connector, mq_settings, api_config, Workspace
-from . import Config, Request, Response, Domain
+from . import Config, Request, Response, Domain, Correction
+
+from datetime import datetime
 
 v2_router = APIRouter(tags=["v2"])
 
@@ -49,3 +51,25 @@ async def translate(body: Request,
 
     result = await mq_connector.publish_request(correlation_id, body, routing_key)
     return result
+
+@v2_router.post("/correction", description="Submit a translation correction request.")
+async def correction(body: Correction, application: Optional[str] = Header(None, convert_underscores=True, deprecated=True)):
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    output = f"date: {dt_string}\n\nrequest: {body.request}\n\noriginalTranslation: {body.response}\n\ncorrectedTranslation: {body.correction}\n---\n\n"
+
+    filePath= api_config.corrections_data_storage_path
+
+    maxAttempts = 50
+    attempt = 0
+    while attempt < maxAttempts:
+        try:
+            with open(filePath, 'a') as f:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                f.write(output)
+                return {"message": "Correction saved."}
+        except IOError:
+            attempt += 1
+            # Failed to acquire lock, wait and try again
+            time.sleep(.1)
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to save data on a server.")
