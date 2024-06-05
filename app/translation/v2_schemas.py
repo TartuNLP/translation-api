@@ -30,7 +30,8 @@ class Request(BaseModel):
     def __init__(self, **data: Any):
         super().__init__(**data)
 
-        length = len(self.text) if type(self.text) == str else sum([len(sent) for sent in self.text])
+        length = len(self.text) if type(self.text) == str else sum(
+            [len(sent) for sent in self.text])
         if length > api_settings.max_input_length:
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
@@ -77,3 +78,15 @@ class Config(BaseModel):
                               description="[Deprecated] A boolean value whether using XML tags in text is supported.")
     domains: List[Domain] = Field(...,
                                   description="A list of supported domains and their configurations.")
+
+
+class Correction(BaseModel):
+    request: str = Field(...,
+                         description="An original translation request.",
+                         example='{"text":"Aitäh!","tgt":"eng","src":"est"}')
+    response: str = Field(...,
+                          description="An original translation.",
+                          example="Thank you!")
+    correction: str = Field(...,
+                            description="A user-corrected text.",
+                            example="Thanks!")
