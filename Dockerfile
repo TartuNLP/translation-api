@@ -1,4 +1,4 @@
-FROM python:3.10-alpine
+FROM python:3.13-alpine
 
 # Install system dependencies
 RUN apk update && \
@@ -18,7 +18,8 @@ USER app
 ENV PATH="/home/app/.local/bin:${PATH}"
 
 COPY --chown=app:app requirements.txt .
-RUN pip install --no-cache-dir --upgrade --user -r requirements.txt && \
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir --upgrade --user -r requirements.txt && \
     rm requirements.txt
 
 COPY --chown=app:app . .

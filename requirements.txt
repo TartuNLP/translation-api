@@ -2,6 +2,6 @@ aio-pika==8.3.0
 fastapi==0.88.0
 uvicorn==0.20.0
 pydantic==1.10.21
-pyyaml==6.0
+pyyaml==6.0.2
 python-dotenv
 email-validator

@@ -13,7 +13,7 @@ and [MemoQ](https://github.com/TartuNLP/MemoQ-Neurotolge-Plugin).
 
 The API can be used with the following request:
 
-POST `/translation/v2`
+POST `/v2`
 
 HEADERS (optional):
 
@@ -90,7 +90,6 @@ to be mounted under to the non-root path `/translation` when using a proxy serve
 The setup can be tested with the following sample `docker-compose.yml` configuration:
 
 ``` yaml
-version: '3'
 services:
   rabbitmq:
     image: 'rabbitmq'
@@ -108,6 +107,7 @@ services:
       - '80:8000'
     depends_on:
       - rabbitmq
+    restart: on-failure
   nmt_worker:
     image: ghcr.io/tartunlp/translation-worker:latest
     environment:
